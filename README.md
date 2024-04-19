@@ -14,3 +14,6 @@ Feating/hiring retired teachers also takes time and matches their wages
 > How to Solve the issue 
 By integrating 90% of the process into automated AI, we can reduce the waiting time for students to get the service and have more students receive the service where they need the most 
 
+# Flowchart
+
+![image](https://github.com/naglad/HHSE/assets/160193476/9dc97e71-c87d-4be7-b42e-06452aec0d1d)
