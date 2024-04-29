@@ -85,20 +85,22 @@ def insert_student(conn, student_data):
     cursor.execute(query, student_data)
     conn.commit()
 
-    # Query students by return date
-    st.write("Query students by return date:")
-    date = st.date_input("Select a date", datetime.now())
-    if st.button("Query"):
-        df = query_students_by_return_date(conn, date.strftime('%Y-%m-%d'))
-        st.write(df)
+    conn.close()    
 
-    # Query newly added students
-    st.write("Query newly added students:")
-    if st.button("Query Newly Added"):
-        df = query_newly_added_students(conn)
-        st.write(df)
-
-    conn.close()
+    def query_students(conn, student_name):
+        query = '''SELECT * FROM students WHERE name = ?'''
+        df = pd.read_sql_query(query, conn, params=(student_name,))
+        return df
+    
+    # Query students
+    st.sidebar.write("Query students:")
+    query_form = st.sidebar.form(key='query_form')
+    query_student_name = query_form.text_input("Student Name")
+    query_submit_button = query_form.form_submit_button("Query")
+    
+    if query_submit_button:
+        df = query_students(conn, query_student_name)
+        st.sidebar.write(df)
 
 if __name__ == "__main__":
     initialize_db() # Initialize the database

@@ -33,17 +33,11 @@ def initialize_db():
     df.to_sql('students', conn, if_exists='append', index=False)
 
     conn.commit()
-    conn.close()
-
-
-def connect_to_db():
-    conn = sqlite3.connect('HHSE.db')
-    return conn
+    return conn # Return the connection
 
 # Step 3: Streamlit Application
-def main():
+def main(conn):
     st.title('HHSE Data Viewer')
-    conn = connect_to_db()
 
     # Insert new student
     st.write("Insert new student:")
@@ -73,6 +67,22 @@ def main():
         ))
         st.success("Student added successfully.")
 
+    # Query students
+    st.sidebar.write("Query students:")
+    query_form = st.sidebar.form(key='query_form')
+    query_field = query_form.selectbox("Select Field", options=['Student_Name', 'Student_DOB', 'Student_Address', 'School_District', 'Physician_Name', 'Physician_Phone_Number', 'Type_Of_Authorizer', 'License_Num', 'Physician_Address', 'Home_Hospital_Both', 'Consecutive_Recurring_Basis', 'Admittance_Date', 'Regular_Reduced_Workload', 'Return_Date'])
+    query_value = query_form.text_input("Value")
+    query_submit_button = query_form.form_submit_button("Query")
+
+    if query_submit_button and query_value.strip() != "":
+        df = query_students(conn, query_field, query_value)
+        if not df.empty:
+            st.sidebar.write(df)
+        else:
+            st.sidebar.write("No results found.")
+    elif query_value.strip() == "":
+        st.sidebar.write("Please enter a value to search.")
+
 def insert_student(conn, student_data):
     cursor = conn.cursor()
     query = '''INSERT INTO students (
@@ -81,25 +91,15 @@ def insert_student(conn, student_data):
                    License_Num, Physician_Address, Home_Hospital_Both, 
                    Consecutive_Recurring_Basis, Admittance_Date, 
                    Regular_Reduced_Workload, Return_Date)
-               VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
+              VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)'''
     cursor.execute(query, student_data)
     conn.commit()
 
-    # Query students by return date
-    st.write("Query students by return date:")
-    date = st.date_input("Select a date", datetime.now())
-    if st.button("Query"):
-        df = query_students_by_return_date(conn, date.strftime('%Y-%m-%d'))
-        st.write(df)
-
-    # Query newly added students
-    st.write("Query newly added students:")
-    if st.button("Query Newly Added"):
-        df = query_newly_added_students(conn)
-        st.write(df)
-
-    conn.close()
+def query_students(conn, field, value):
+    query = f'''SELECT * FROM students WHERE {field} = ?'''
+    df = pd.read_sql_query(query, conn, params=(value,))
+    return df
 
 if __name__ == "__main__":
-    initialize_db() # Initialize the database
-    main() # Run the Streamlit application
+    conn = initialize_db() # Initialize the database and get the connection
+    main(conn) # Run the Streamlit application with the connection

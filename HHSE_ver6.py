@@ -85,19 +85,6 @@ def insert_student(conn, student_data):
     cursor.execute(query, student_data)
     conn.commit()
 
-    # Query students by return date
-    st.write("Query students by return date:")
-    date = st.date_input("Select a date", datetime.now())
-    if st.button("Query"):
-        df = query_students_by_return_date(conn, date.strftime('%Y-%m-%d'))
-        st.write(df)
-
-    # Query newly added students
-    st.write("Query newly added students:")
-    if st.button("Query Newly Added"):
-        df = query_newly_added_students(conn)
-        st.write(df)
-
     conn.close()
 
 if __name__ == "__main__":

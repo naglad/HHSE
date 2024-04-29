@@ -1,0 +1,6 @@
+Streamlit, version 1.33.0
+GMAIL API
+
+install the Streamlit CLI
+Sqlite from Conda-forge  OR  Sqlite3 from python pip install
+
